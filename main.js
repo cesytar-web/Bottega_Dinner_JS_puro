@@ -37,34 +37,23 @@ const comments = [
   "Buena elección, queda muy bien con los acompañamientos.",
 ];
 
-// Muestra comentario aleatorio
 function showComment() {
   const comment = comments[Math.floor(Math.random() * comments.length)];
   alert(`Comentario: ${comment}`);
 }
 
-// Mostrar opciones de menú
 function displayMenuOptions(menuArray, message, menuType) {
-  let optionMessage = `${message}\n`;
+  let optionMessage = `${message} (escribe el número de tu elección):\n\n`;
   menuArray.forEach((item, index) => {
     let finalPrice = item.price;
-
-    // aumento del 20% solo para el menu Cena(plato principal, acompañamientos y postres)
     if (currentMealType === "Cena") {
       finalPrice = Number((item.price * 1.2).toFixed(2));
     }
-
     optionMessage += `${index + 1}. ${item.name} (€${finalPrice})\n`;
   });
   return optionMessage;
 }
 
-// plato del menú
-function findDishInMenu(index, menu) {
-  return menu[index];
-}
-
-// menú según la hora introducida
 function getMenuByHour(hour) {
   if (hour >= 6 && hour < 12) {
     return { menu: breakfast, type: "Desayuno" };
@@ -86,32 +75,25 @@ function getMenuByHour(hour) {
   }
 }
 
-// Función el usuario elije un plato por número
 function chooseOption(menu, menuType) {
   let choice;
   let validChoice = false;
-
-  // Bucle hasta que elija una opción válida
   do {
     const optionsMessage = displayMenuOptions(menu, `Elige tu ${menuType}:`, menuType);
     choice = prompt(optionsMessage);
-
     if (choice === null) {
-      return null; // Si el usuario cancela
+      return null;
     }
-
     const index = parseInt(choice) - 1;
-
     if (index >= 0 && index < menu.length) {
       validChoice = true;
-      return menu[index]; // Devolver el plato seleccionado
+      return menu[index];
     } else {
       alert("Por favor, elige un número válido.");
     }
   } while (!validChoice);
 }
 
-//opción del menú
 function selectOption(menuType) {
   let selectedDish;
 
@@ -121,7 +103,6 @@ function selectOption(menuType) {
       selectedMain = selectedDish;
       alert(`Has seleccionado: ${selectedDish.name} (€${selectedDish.price})`);
       showComment();
-
       if (currentMealType === "Desayuno") {
         showSummary();
       } else {
@@ -155,7 +136,6 @@ function selectOption(menuType) {
   }
 }
 
-// Resumen final del pedido (Solo con alert)
 function showSummary() {
   let total = parseFloat(selectedMain.price);
 
@@ -164,19 +144,28 @@ function showSummary() {
 
   if (currentMealType !== "Desayuno") {
     total += selectedAccomp1.price + selectedAccomp2.price + selectedDessert.price;
-    summaryMessage += `
-      Acompañamientos: ${selectedAccomp1.name} y ${selectedAccomp2.name} - €${(selectedAccomp1.price + selectedAccomp2.price).toFixed(2)}\n
-      Postre: ${selectedDessert.name} - €${selectedDessert.price}\n
-    `;
+    summaryMessage += `Acompañamientos: ${selectedAccomp1.name} y ${selectedAccomp2.name} - €${(selectedAccomp1.price + selectedAccomp2.price).toFixed(2)}\n`;
+    summaryMessage += `Postre: ${selectedDessert.name} - €${selectedDessert.price}\n`;
   }
 
   summaryMessage += `Total: €${total.toFixed(2)}`;
-  
-  // Mostrar el resumen en un alert
   alert(summaryMessage);
+
+  let continueChoosing = prompt("¿Quieres elegir otro menú? (Sí / No)").toLowerCase();
+  if (continueChoosing === "sí" || continueChoosing === "si") {
+    selectedMain = null;
+    selectedAccomp1 = null;
+    selectedAccomp2 = null;
+    selectedDessert = null;
+    currentMealType = "";
+    currentMenu = [];
+    alert("¡Nuevo menú seleccionado!");
+    showMenu();
+  } else {
+    alert("¡Gracias por tu pedido!");
+  }
 }
 
-// Función principal
 function showMenu() {
   selectedMain = null;
   selectedAccomp1 = null;
@@ -186,37 +175,24 @@ function showMenu() {
   let inputHour;
   let menuData;
 
-  // Bucle hasta que indique una hora válida
   do {
-    inputHour = prompt(
-      "¿Qué hora es? (Introduce la hora en formato 24h, ej: 9 para 9:00 am)"
-    );
+    inputHour = prompt("¿Qué hora es? (Introduce la hora en formato 24h, ej: 9 para 9:00 am)");
     inputHour = parseInt(inputHour);
-
-    // Validación de hora
     if (isNaN(inputHour) || inputHour < 6 || inputHour > 23) {
       alert("Por favor, introduce una hora válida entre 6 y 23.");
     } else {
       menuData = getMenuByHour(inputHour);
     }
-  } while (!menuData); // El bucle sigue hasta que la hora sea válida
+  } while (!menuData);
 
   currentMealType = menuData.type;
   currentMenu = menuData.menu;
 
   alert(`Menú de ${currentMealType}`);
   selectOption("main");
-
-  // Preguntar al usuario si quiere elegir otro menú
-  let continueChoosing = prompt("¿Quieres elegir otro menú? (Sí / No)").toLowerCase();
-
-  // Continuar con el menú o salir
-  if (continueChoosing === "sí" || continueChoosing === "si") {
-    showMenu(); 
-  } else {
-    alert("¡Gracias por tu pedido!"); // Mensaje final si decide no elegir otro menú
-  }
 }
 
-// Llamada a showMenu para iniciar el menú
-showMenu();
+// ✅ Esto es lo único que se necesita para iniciar en CodePen
+window.onload = function () {
+  showMenu();
+};
